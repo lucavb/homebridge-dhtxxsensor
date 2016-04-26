@@ -1,0 +1,24 @@
+{
+    "name": "homebridge-dht22",
+    "version": "0.1",
+    "description": "Simulated switch plugin for Homebridge: https://github.com/nfarina/homebridge",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+      "homebridge-plugin",
+      "dht22",
+      "dht11"
+    ],
+    "author": "lucabecker",
+    "license": "none",
+    "engines" : {
+        "node": ">=0.12.0",
+        "homebridge": ">=0.2.0"
+    }
+    { "dependencies" :
+      { "dht-sensor" : "0.0.4"
+      }
+    }
+}
