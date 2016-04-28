@@ -21,7 +21,7 @@ module.exports = function(homebridge) {
     HomebridgeAPI = homebridge;
 
     homebridge.registerAccessory("homebridge-dhtxxsensor", "dhtxxsensor", DHTXXSensor);
-}
+};
 
 function DHTXXSensor(log, config) {
 	this.log = log;
@@ -52,28 +52,22 @@ function DHTXXSensor(log, config) {
 }
 
 DHTXXSensor.prototype.getHumid = function(callback) {
-	var current;
 	if (diffBigEnough(this.lastTimestamp)) {
 		this.lastTimestamp = new Date();
-		current = dht.read(this.type, this.gpioId);
-	} else {
-		current = this.lastRecord;
+		this.lastRecord = dht.read(this.type, this.gpioId);
 	}
-	callback(null, current.humidity);
-}
+	callback(null, this.lastRecord.humidity);
+};
 
 DHTXXSensor.prototype.getTemp = function(callback) {
-	var current;
 	if (diffBigEnough(this.lastTimestamp)) {
 		this.lastTimestamp = new Date();
-		current = dht.read(this.type, this.gpioId);
-	} else {
-		current = this.lastRecord;
+		this.lastRecord = dht.read(this.type, this.gpioId);
 	}
-	callback(null, current.temperature); 
-}
+	callback(null, this.lastRecord.temperature); 
+};
 
 DHTXXSensor.prototype.getServices = function() {
 
   return [this.informationService, this.service_therm, this.service_humid];
-}
+};
