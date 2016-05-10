@@ -39,22 +39,38 @@ function DHTXXSensor(log, config) {
 	.setCharacteristic(Characteristic.Model, config.model || "DHT" + this.type)
 	.setCharacteristic(Characteristic.SerialNumber, config.serial || "773D80FF");
 
+
+	// temperature service and humidity service
+
 	this.service_therm = new Service.TemperatureSensor(this.name);
 	this.service_humid = new Service.HumiditySensor(this.name);
 
 	this.service_therm.getCharacteristic(Characteristic.CurrentTemperature)
 		.on('get', this.getTemp.bind(this));
-	// this.service_therm.setCharacteristic(Characteristic.Model, "DHT22");
 
 	this.service_humid.getCharacteristic(Characteristic.CurrentRelativeHumidity)
 		.on('get', this.getHumid.bind(this));
-	// this.service_humid.setCharacteristic(Characteristic.Model, "DHT22");
+
+	if (config.autoRefresh && config.autoRefresh > 0) {
+		var that = this;
+		setInterval(function() {
+			that.lastTimestamp = new Date();
+			that.lastRecord = dht.read(that.type, that.gpioId);
+			that.service_therm.getCharacteristic(Characteristic.CurrentTemperature)
+				.setValue(that.lastRecord.temperature);
+
+			that.service_humid.getCharacteristic(Characteristic.CurrentRelativeHumidity)
+				.setValue(that.lastRecord.humidity);
+		}, config.autoRefresh * 1000);
+	}
 }
 
 DHTXXSensor.prototype.getHumid = function(callback) {
 	if (diffBigEnough(this.lastTimestamp)) {
 		this.lastTimestamp = new Date();
 		this.lastRecord = dht.read(this.type, this.gpioId);
+		this.service_therm.getCharacteristic(Characteristic.CurrentTemperature)
+			.setValue(this.lastRecord.temperature);
 	}
 	callback(null, this.lastRecord.humidity);
 };
@@ -63,6 +79,8 @@ DHTXXSensor.prototype.getTemp = function(callback) {
 	if (diffBigEnough(this.lastTimestamp)) {
 		this.lastTimestamp = new Date();
 		this.lastRecord = dht.read(this.type, this.gpioId);
+		this.service_humid.getCharacteristic(Characteristic.CurrentRelativeHumidity)
+			.setValue(this.lastRecord.humidity);
 	}
 	callback(null, this.lastRecord.temperature); 
 };
